@@ -8,7 +8,8 @@ class App extends Component {
     super(props)
     this.state = {
       tasks: [],
-      isDisplayForm: false
+      isDisplayForm: false,
+      taskEditing : null
     }
   }
   componentDidMount() {
@@ -54,18 +55,100 @@ class App extends Component {
   }
 
   onToggleForm = () => {
-    console.log('test touch');
     this.setState({
       isDisplayForm: !this.state.isDisplayForm
     })
   }
   onCloseForm = () =>{
-    console.log('set log')
+     this.setState({
+        isDisplayForm : false 
+     })
+  }
+  // van giu da ta 
+  onSubmit = (data) =>{
+    var {tasks } = this.state; // var tasks = this.state.tasks
+    if(data.id === '')
+    {
+      data.id = this.geneID();
+      tasks.push(data);
+    }
+    else
+    {
+      var index = this.findIndex(data.id);
+      tasks[index] =data;
+    }
+    this.setState({
+       tasks :tasks
+    });
+    localStorage.setItem('tasks' ,JSON.stringify(tasks));
+  }
+
+  onUpdateStatus = (id) =>{
+    var {tasks} = this.state;
+    var index  = this.findIndex(id);
+    if(index !=-1)
+    {
+        tasks[index].status = ! tasks[index].status;
+        this.setState (
+          {
+             tasks :tasks
+          }
+        )
+    }
+    localStorage.setItem('tasks' , JSON.stringify(tasks));
+  }
+  findIndex =(id) =>{
+    var {tasks} = this.state ;
+    var result  = -1 ;
+    tasks.forEach((task, index) =>{
+        if (task.id  === id)
+        {
+            result =index;
+        }
+    })
+    return result;
+  }
+  DeleteTask =(id) =>{
+     var {tasks} = this.state;
+     var index  = this.findIndex(id);
+     console.log(index);
+     if(index  != -1)
+     {
+         tasks.splice(index , 1);
+         this.setState(
+           {
+             tasks :tasks
+           }
+         )
+     }
+     localStorage.setItem('tasks' , JSON.stringify(tasks));
+     this.onCloseForm();
+  }
+  OnUpdate = (id) =>{
+      // tim task và luu vao editing
+      var {tasks} = this.state;
+      var index = this.findIndex(id);
+      var taskEditing = tasks[index];
+      this.setState({
+        taskEditing : taskEditing
+      });
+      this.onShowForm();
+  }
+  onShowForm = () =>{
+      this.setState(
+        {
+          isDisplayForm : true
+        }
+      ) 
   }
   render() {
     var tasks = this.state.tasks;
     var isDisplayForm = this.state.isDisplayForm;
-    var elemTaskForm = isDisplayForm ? <TaskForm onClick={this.onCloseForm}/> : '';
+    var taskEditing = this.state.taskEditing;
+    var elemTaskForm = isDisplayForm ? <TaskForm
+    task ={taskEditing}
+    onSubmit ={this.onSubmit}
+    onClick={this.onCloseForm}/> : '';
     return (
       <div className="container">
         <div className="text-center">
@@ -92,7 +175,11 @@ class App extends Component {
             </div>
             <div className="row mt-15">
               <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <TaskList tasks={tasks}></TaskList>
+                <TaskList tasks={tasks}  
+                 onUpdateStatus  = {this.onUpdateStatus}
+                 DeleteTask = {this.DeleteTask}
+                 OnUpdate = {this.OnUpdate} 
+                 ></TaskList>
               </div>
             </div>
           </div>

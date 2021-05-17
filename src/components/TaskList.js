@@ -5,7 +5,14 @@ class TaskList extends Component {
     render() {
         var tasks = this.props.tasks;
         var elementTast  = tasks.map((task,index) =>{
-            return <Taskitem key={task.id} index = {index} task ={task}/>
+            return <Taskitem 
+                key={task.id} 
+                index = {index} 
+                task ={task}
+                onUpdateStatus = {this.props.onUpdateStatus}  
+                DeleteTask = {this.props.DeleteTask}
+                OnUpdate = {this.props.OnUpdate}
+            />
             } 
         );
         return (
